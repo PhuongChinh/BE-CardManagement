@@ -43,6 +43,12 @@ public class User implements Serializable {
 
 	@Column(length = 100)
 	private String role;
+	
+	@Column(length = 100, nullable = true)
+	private String phone;
+	
+	@Column(nullable = true)
+	private boolean status;
 
 	public String getId() {
 		return Id;
@@ -83,4 +89,22 @@ public class User implements Serializable {
 	public void setRole(String role) {
 		this.role = role;
 	}
+
+	public String getPhone() {
+		return phone;
+	}
+
+	public void setPhone(String phone) {
+		this.phone = phone;
+	}
+
+	public boolean isStatus() {
+		return status;
+	}
+
+	public void setStatus(boolean status) {
+		this.status = status;
+	}
+	
+	
 }

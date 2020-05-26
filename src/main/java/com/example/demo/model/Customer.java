@@ -40,6 +40,12 @@ public class Customer implements Serializable {
 	@Column(length = 254, name = "note", nullable = true)
 	private String note;
 	
+	@Column(length = 254, name = "phone", nullable = true)
+	private String phone;
+	
+	@Column(length = 254, name = "email", nullable = true)
+	private String email;
+	
 	@OneToMany(mappedBy = "customer")
 	private List<Order> orders;
 
@@ -82,4 +88,21 @@ public class Customer implements Serializable {
 	public void setOrders(List<Order> orders) {
 		this.orders = orders;
 	}
+
+	public String getPhone() {
+		return phone;
+	}
+
+	public void setPhone(String phone) {
+		this.phone = phone;
+	}
+
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
+	}
+	
 }

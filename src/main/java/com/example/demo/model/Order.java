@@ -2,6 +2,7 @@ package com.example.demo.model;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -11,6 +12,8 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.NamedQuery;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -47,6 +50,9 @@ public class Order implements Serializable {
 	
 	@Column(name = "quantity", nullable = true)
 	private int quantity;
+	
+	@Column(name = "price", nullable = true)
+	private int price;
 
 	@Column(name = "total_amount", nullable = true)
 	private int totalAmount;
@@ -66,6 +72,13 @@ public class Order implements Serializable {
 	@Temporal(TemporalType.DATE)
 	@Column(name="end_time", nullable = true)
 	private Date endTime;
+	
+	@OneToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "order_phase_id", nullable = true)
+	private OrderPhase phases;
+	
+	@OneToMany(mappedBy = "order")
+	private List<OrderPhaseWorker> phaseWorkers;
 	
 	public String getId() {
 		return Id;
@@ -145,5 +158,29 @@ public class Order implements Serializable {
 
 	public void setEndTime(Date endTime) {
 		this.endTime = endTime;
+	}
+
+	public int getPrice() {
+		return price;
+	}
+
+	public void setPrice(int price) {
+		this.price = price;
+	}
+
+	public OrderPhase getPhases() {
+		return phases;
+	}
+
+	public void setPhases(OrderPhase phases) {
+		this.phases = phases;
+	}
+
+	public List<OrderPhaseWorker> getPhaseWorkers() {
+		return phaseWorkers;
+	}
+
+	public void setPhaseWorkers(List<OrderPhaseWorker> phaseWorkers) {
+		this.phaseWorkers = phaseWorkers;
 	}
 }
