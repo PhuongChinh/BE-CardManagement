@@ -26,7 +26,7 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 @Entity
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(Include.NON_NULL)
-@Table(name = "order_phase_worker")
+@Table(name = "order_phase_worker", schema = "public")
 @NamedQuery(name = "OrderPhaseWorker.findAll", query = "SELECT u FROM OrderPhaseWorker u")
 public class OrderPhaseWorker implements Serializable {
 	private static final long serialVersionUID = 1L;
