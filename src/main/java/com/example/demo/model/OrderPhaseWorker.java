@@ -47,10 +47,17 @@ public class OrderPhaseWorker implements Serializable {
 	
 	@Column(length = 254, name = "status", nullable = true)
 	private String status;
+	
+	@Column(name = "quantity", nullable = true)
+	private int quantity;
 
 	@OneToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_id", nullable = true)
 	private User worker;
+	
+	@OneToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "created_by", nullable = true)
+	private User createdBy;
 	
 	@Temporal(TemporalType.DATE)
 	@Column(name="created_time")
@@ -115,4 +122,21 @@ public class OrderPhaseWorker implements Serializable {
 	public void setCompletedTime(Date completedTime) {
 		this.completedTime = completedTime;
 	}
+
+	public User getCreatedBy() {
+		return createdBy;
+	}
+
+	public void setCreatedBy(User createdBy) {
+		this.createdBy = createdBy;
+	}
+
+	public int getQuantity() {
+		return quantity;
+	}
+
+	public void setQuantity(int quantity) {
+		this.quantity = quantity;
+	}
+	
 }
