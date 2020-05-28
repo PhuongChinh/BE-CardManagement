@@ -18,4 +18,7 @@ import com.example.demo.model.OrderPhaseWorker;
 public interface OrderPhaseWorkerRepo extends PagingAndSortingRepository<OrderPhaseWorker, String>{
 	@Query(value = "select u from OrderPhaseWorker u where u.worker.Id = :workerId and u.status = :status")
 	List<OrderPhaseWorker> findByWorkerIdAndStatus(@Param("workerId") String workerId, @Param("status") String status);
+	
+	@Query(value = "select u from OrderPhaseWorker u where u.worker.Id = :workerId order by u.createdTime DESC")
+	List<OrderPhaseWorker> findByWorkerId(@Param("workerId") String workerId);
 }

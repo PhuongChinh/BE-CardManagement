@@ -15,6 +15,9 @@ import com.example.demo.model.Order;
 @RepositoryRestResource(collectionResourceRel = "orders", path = "orders", exported = true)
 @Cacheable(value = "GlobalCache")
 public interface OrderRepo extends PagingAndSortingRepository<Order, String>{
-	@Query(value = "select u from Order u where u.customer.Id = :customerId")
+	@Query(value = "select u from Order u where u.customer.Id = :customerId order by u.createdTime DESC")
 	List<Order> findByCustomerId(@Param("customerId") String customerId);
+	
+	@Query(value = "select u from Order u order by u.createdTime DESC")
+	List<Order> findAllOrder();
 }

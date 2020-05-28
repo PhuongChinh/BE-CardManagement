@@ -65,11 +65,11 @@ public class Order implements Serializable {
 	@JsonIgnore
 	private Customer customer;
 
-	@Temporal(TemporalType.DATE)
+	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name="created_time")
 	private Date createdTime;
 	
-	@Temporal(TemporalType.DATE)
+	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name="end_time", nullable = true)
 	private Date endTime;
 	
@@ -78,6 +78,7 @@ public class Order implements Serializable {
 	private OrderPhase phases;
 	
 	@OneToMany(mappedBy = "order")
+	@JsonIgnore
 	private List<OrderPhaseWorker> phaseWorkers;
 	
 	public String getId() {

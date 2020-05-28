@@ -90,6 +90,18 @@ public class OrderCtrl {
 		List<Order> orders = orderRepo.findByCustomerId(customerId);
 		return ResponseEntity.ok(new MessageResp(200, "OK", orders));
 	}
+	
+	@RequestMapping(path = "/getPhaseWorkerByWorkerId", method = RequestMethod.GET)
+	public HttpEntity<Object> getPhaseWorkerByWorkerId(@RequestParam(name = "workerId") String workerId) {
+		List<OrderPhaseWorker> phaseWorkers = phaseWorkerRepo.findByWorkerId(workerId);
+		return ResponseEntity.ok(new MessageResp(200, "OK", phaseWorkers));
+	}
+	
+	@RequestMapping(path = "/getAllOrder", method = RequestMethod.GET)
+	public HttpEntity<Object> getAllOrder() {
+		List<Order> orders = orderRepo.findAllOrder();
+		return ResponseEntity.ok(new MessageResp(200, "OK", orders));
+	}
 
 	@RequestMapping(path = "/assignJobForWorker", method = RequestMethod.POST)
 	public HttpEntity<Object> assignJobForWorker(@RequestBody CreateAssignJobObj payload) {
@@ -265,6 +277,9 @@ public class OrderCtrl {
 			worker.setStatus(false);
 			worker = userRepo.save(worker);
 		}
+		
+		phaseWorker.setCompletedTime(new Date());
+		phaseWorker = phaseWorkerRepo.save(phaseWorker);
 		return ResponseEntity.ok(new MessageResp(200, "SUCCESS", "Successfully!"));
 	}
 

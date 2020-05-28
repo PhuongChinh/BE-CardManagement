@@ -39,7 +39,6 @@ public class OrderPhaseWorker implements Serializable {
 	
 	@ManyToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name="order_id", nullable=false)
-	@JsonIgnore
 	private Order order;
 	
 	@Column(length = 254, name = "phase", nullable = true)
@@ -59,11 +58,11 @@ public class OrderPhaseWorker implements Serializable {
 	@JoinColumn(name = "created_by", nullable = true)
 	private User createdBy;
 	
-	@Temporal(TemporalType.DATE)
+	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name="created_time")
 	private Date createdTime;
 	
-	@Temporal(TemporalType.DATE)
+	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name="completed_time", nullable = true)
 	private Date completedTime;
 
