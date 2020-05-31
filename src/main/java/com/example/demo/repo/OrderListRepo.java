@@ -9,12 +9,12 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import org.springframework.stereotype.Repository;
 
-import com.example.demo.model.Order;
+import com.example.demo.model.OrderList;
 
 @Repository
-@RepositoryRestResource(collectionResourceRel = "orders", path = "orders", exported = true)
+@RepositoryRestResource(collectionResourceRel = "orderLists", path = "orderLists", exported = true)
 @Cacheable(value = "GlobalCache")
-public interface OrderRepo extends PagingAndSortingRepository<Order, String>{
-	@Query(value = "select u from Order u where u.orderList.Id = :orderListId order by u.createdTime DESC")
-	List<Order> findByOrderListId(@Param("orderListId") String orderListId);
+public interface OrderListRepo extends PagingAndSortingRepository<OrderList, String>{
+	@Query(value = "select u from OrderList u where u.customer.Id = :customerId order by u.createdTime DESC")
+	List<OrderList> findByCustomerId(@Param("customerId") String customerId);
 }

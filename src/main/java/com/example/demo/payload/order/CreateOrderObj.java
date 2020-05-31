@@ -1,21 +1,14 @@
 package com.example.demo.payload.order;
 
-public class CreateUpdateOrderObj {
-	private String orderId;
+public class CreateOrderObj {
 	private String orderName;
 	private String orderDesc;
 	private String orderNote;
 	private int orderQuantity;
 	private int orderPrice;
 	private int orderTotalAmount;
-	private String customerId;
 	private String orderStatus;
-	public String getOrderId() {
-		return orderId;
-	}
-	public void setOrderId(String orderId) {
-		this.orderId = orderId;
-	}
+	private String orderListId;
 	public String getOrderName() {
 		return orderName;
 	}
@@ -53,17 +46,17 @@ public class CreateUpdateOrderObj {
 	public void setOrderTotalAmount(int orderTotalAmount) {
 		this.orderTotalAmount = orderTotalAmount;
 	}
-	public String getCustomerId() {
-		return customerId;
-	}
-	public void setCustomerId(String customerId) {
-		this.customerId = customerId;
-	}
 	public String getOrderStatus() {
 		return orderStatus;
 	}
 	public void setOrderStatus(String orderStatus) {
 		this.orderStatus = orderStatus;
+	}
+	public String getOrderListId() {
+		return orderListId;
+	}
+	public void setOrderListId(String orderListId) {
+		this.orderListId = orderListId;
 	}
 	
 	

@@ -21,7 +21,7 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(Include.NON_NULL)
 @Table(name="customers", schema = "public")
-@NamedQuery(name="Customer.findAll", query="SELECT u FROM Customer u")
+@NamedQuery(name="Customer.findAll", query="SELECT u FROM Customer u order by u.customerName ASC")
 public class Customer implements Serializable {
 	private static final long serialVersionUID = 1L;
 
@@ -46,8 +46,17 @@ public class Customer implements Serializable {
 	@Column(length = 254, name = "email", nullable = true)
 	private String email;
 	
+	@Column(name = "is_order", nullable = true)
+	private boolean isOrder;
+	
+	@Column(name = "is_required_design", nullable = true)
+	private boolean isRequiredDesign;
+	
+	@Column(name = "order_list_quantity", nullable = true)
+	private int orderListQuantity;
+	
 	@OneToMany(mappedBy = "customer")
-	private List<Order> orders;
+	private List<OrderList> orderList;
 
 	public String getId() {
 		return Id;
@@ -81,12 +90,12 @@ public class Customer implements Serializable {
 		this.note = note;
 	}
 
-	public List<Order> getOrders() {
-		return orders;
+	public List<OrderList> getOrderList() {
+		return orderList;
 	}
 
-	public void setOrders(List<Order> orders) {
-		this.orders = orders;
+	public void setOrderList(List<OrderList> orderList) {
+		this.orderList = orderList;
 	}
 
 	public String getPhone() {
@@ -103,6 +112,30 @@ public class Customer implements Serializable {
 
 	public void setEmail(String email) {
 		this.email = email;
+	}
+
+	public boolean isOrder() {
+		return isOrder;
+	}
+
+	public void setOrder(boolean isOrder) {
+		this.isOrder = isOrder;
+	}
+
+	public boolean isRequiredDesign() {
+		return isRequiredDesign;
+	}
+
+	public void setRequiredDesign(boolean isRequiredDesign) {
+		this.isRequiredDesign = isRequiredDesign;
+	}
+
+	public int getOrderListQuantity() {
+		return orderListQuantity;
+	}
+
+	public void setOrderListQuantity(int orderListQuantity) {
+		this.orderListQuantity = orderListQuantity;
 	}
 	
 }

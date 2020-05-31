@@ -19,12 +19,15 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.demo.common.Constants;
 import com.example.demo.model.Customer;
 import com.example.demo.model.Order;
+import com.example.demo.model.OrderList;
 import com.example.demo.model.OrderPhase;
 import com.example.demo.model.OrderPhaseWorker;
 import com.example.demo.model.User;
 import com.example.demo.payload.order.CreateAssignJobObj;
-import com.example.demo.payload.order.CreateUpdateOrderObj;
+import com.example.demo.payload.order.CreateOrderListObj;
+import com.example.demo.payload.order.CreateOrderObj;
 import com.example.demo.repo.CustomerRepo;
+import com.example.demo.repo.OrderListRepo;
 import com.example.demo.repo.OrderPhaseRepo;
 import com.example.demo.repo.OrderPhaseWorkerRepo;
 import com.example.demo.repo.OrderRepo;
@@ -47,27 +50,25 @@ public class OrderCtrl {
 	UserRepo userRepo;
 	@Autowired
 	OrderPhaseWorkerRepo phaseWorkerRepo;
+	@Autowired
+	OrderListRepo orderListRepo;
+
 	
-	@RequestMapping(path = "/createOrUpdateOrder", method = RequestMethod.POST)
-	public HttpEntity<Object> getAllUser(@RequestBody CreateUpdateOrderObj payload) {
-		String id = payload.getOrderId();
+	//TODO: CREATE ORDER
+	@RequestMapping(path = "/createOrder", method = RequestMethod.POST)
+	public HttpEntity<Object> createOrder(@RequestBody CreateOrderObj payload) {
 		Order order = new Order();
 
-		Optional<Order> opOrder = orderRepo.findById(id);
-		if (opOrder.isPresent()) {
-			order = opOrder.get();
-		} else {
-			order.setCreatedTime(new Date());
-			OrderPhase phases = new OrderPhase();
-			phases.setPhaseOne(payload.getOrderQuantity());
-			phases.setPhaseTwo(0);
-			phases.setPhaseThree(0);
-			phases.setPhaseFour(0);
-			phases.setPhaseFive(0);
-			phases.setPhaseCompleted(0);
-			phases = phaseRepo.save(phases);
-			order.setPhases(phases);
-		}
+		order.setCreatedTime(new Date());
+		OrderPhase phases = new OrderPhase();
+		phases.setPhaseOne(payload.getOrderQuantity());
+		phases.setPhaseTwo(0);
+		phases.setPhaseThree(0);
+		phases.setPhaseFour(0);
+		phases.setPhaseFive(0);
+		phases.setPhaseCompleted(0);
+		phases = phaseRepo.save(phases);
+		order.setPhases(phases);
 
 		order.setOrderName(payload.getOrderName());
 		order.setOrderDesc(payload.getOrderDesc());
@@ -77,30 +78,56 @@ public class OrderCtrl {
 		order.setTotalAmount(payload.getOrderPrice() * payload.getOrderQuantity());
 		order.setStatus(payload.getOrderStatus());
 
-		Customer customer = customerRepo.findById(payload.getCustomerId()).get();
-		order.setCustomer(customer);
+		OrderList orderList = orderListRepo.findById(payload.getOrderListId()).get();
+		order.setOrderList(orderList);
 		order = orderRepo.save(order);
 
-		List<Order> orders = orderRepo.findByCustomerId(payload.getCustomerId());
-		return ResponseEntity.ok(new MessageResp(200, "OK", orders));
-	}
-
-	@RequestMapping(path = "/getOrderByCutomerId", method = RequestMethod.GET)
-	public HttpEntity<Object> getOrderByCutomerId(@RequestParam(name = "customerId") String customerId) {
-		List<Order> orders = orderRepo.findByCustomerId(customerId);
+		orderList.setTotalQuantity(orderList.getTotalQuantity() + payload.getOrderQuantity());
+		orderList.setCompletedQuantity(orderList.getCompletedQuantity()/orderList.getTotalQuantity());
+		orderList = orderListRepo.save(orderList);
+		List<Order> orders = orderRepo.findByOrderListId(payload.getOrderListId());
 		return ResponseEntity.ok(new MessageResp(200, "OK", orders));
 	}
 	
+	//TODO: CREATE ORDER_LIST
+	@RequestMapping(path = "/createOrderList", method = RequestMethod.POST)
+	public HttpEntity<Object> createOrderList(@RequestBody CreateOrderListObj payload) {
+		OrderList orderList = new OrderList();
+		orderList.setOrderListName(payload.getOrderListName());
+		orderList.setOrderListDesc(payload.getOrderListDesc());
+		orderList.setNote(payload.getOrderListNote());
+		orderList.setCreatedTime(new Date());
+		
+		Customer customer = customerRepo.findById(payload.getCustomerId()).get();
+		orderList.setCustomer(customer);
+		orderList.setTotalQuantity(0);
+		orderList.setCompletedQuantity(0);
+		orderList = orderListRepo.save(orderList);
+		customer.setOrderListQuantity(customer.getOrderListQuantity() + 1);
+		if (customer.isOrder() == false) {
+			customer.setOrder(true);
+			customer = customerRepo.save(customer);
+		}
+		List<OrderList> orderLists = orderListRepo.findByCustomerId(payload.getCustomerId());
+		return ResponseEntity.ok(new MessageResp(200, "OK", orderLists));
+	}
+
+	@RequestMapping(path = "/getOrderByOrderListId", method = RequestMethod.GET)
+	public HttpEntity<Object> getOrderByOrderListId(@RequestParam(name = "orderListId") String orderListId) {
+		List<Order> orders = orderRepo.findByOrderListId(orderListId);
+		return ResponseEntity.ok(new MessageResp(200, "OK", orders));
+	}
+
+	@RequestMapping(path = "/getOrderListByCutomerId", method = RequestMethod.GET)
+	public HttpEntity<Object> getOrderListByCutomerId(@RequestParam(name = "customerId") String customerId) {
+		List<OrderList> orderLists = orderListRepo.findByCustomerId(customerId);
+		return ResponseEntity.ok(new MessageResp(200, "OK", orderLists));
+	}
+
 	@RequestMapping(path = "/getPhaseWorkerByWorkerId", method = RequestMethod.GET)
 	public HttpEntity<Object> getPhaseWorkerByWorkerId(@RequestParam(name = "workerId") String workerId) {
 		List<OrderPhaseWorker> phaseWorkers = phaseWorkerRepo.findByWorkerId(workerId);
 		return ResponseEntity.ok(new MessageResp(200, "OK", phaseWorkers));
-	}
-	
-	@RequestMapping(path = "/getAllOrder", method = RequestMethod.GET)
-	public HttpEntity<Object> getAllOrder() {
-		List<Order> orders = orderRepo.findAllOrder();
-		return ResponseEntity.ok(new MessageResp(200, "OK", orders));
 	}
 
 	@RequestMapping(path = "/assignJobForWorker", method = RequestMethod.POST)
@@ -161,39 +188,39 @@ public class OrderCtrl {
 		}
 		orderPhase = phaseRepo.save(orderPhase);
 		phaseWorker = phaseWorkerRepo.save(phaseWorker);
-		
+
 		worker.setStatus(true);
 		worker = userRepo.save(worker);
 
 		return ResponseEntity.ok(new MessageResp(200, "SUCCESS", "Created successfully!"));
 	}
-	
+
 	@RequestMapping(path = "/getPhaseWorkerOfOrder", method = RequestMethod.GET)
 	public HttpEntity<Object> getPhaseWorkerOfOrder(@RequestParam String orderId) {
-		
+
 		Optional<Order> opOrder = orderRepo.findById(orderId);
 		if (!opOrder.isPresent()) {
 			return ResponseEntity.ok(new MessageResp(200, "FAIL", "Đơn hàng không tồn tại!"));
 		}
 		Order order = opOrder.get();
 		List<OrderPhaseWorker> phaseWorkers = order.getPhaseWorkers();
-		
+
 		List<OrderPhaseWorker> two = new ArrayList<OrderPhaseWorker>();
 		List<OrderPhaseWorker> three = new ArrayList<OrderPhaseWorker>();
 		List<OrderPhaseWorker> four = new ArrayList<OrderPhaseWorker>();
 		List<OrderPhaseWorker> five = new ArrayList<OrderPhaseWorker>();
-		
+
 		int twoNotDo = order.getPhases().getPhaseTwo();
 		int threeNotDo = order.getPhases().getPhaseThree();
 		int fourNotDo = order.getPhases().getPhaseFour();
 		int fiveNotDo = order.getPhases().getPhaseFive();
-		
+
 		PhaseWorkerObj resp = new PhaseWorkerObj();
 		resp.setCompleted(order.getPhases().getPhaseCompleted());
 		resp.setNotDo(order.getPhases().getPhaseOne());
-		
+
 		for (OrderPhaseWorker phaseWorker : phaseWorkers) {
-			switch (phaseWorker.getPhase()) {				
+			switch (phaseWorker.getPhase()) {
 			case Constants.PHASE_TWO:
 				two.add(phaseWorker);
 				if (Constants.DOING.equalsIgnoreCase(phaseWorker.getStatus())) {
@@ -224,7 +251,7 @@ public class OrderCtrl {
 		resp.setPhaseThree(three);
 		resp.setPhaseFour(four);
 		resp.setPhaseFive(five);
-		
+
 		resp.setTwoNotDo(twoNotDo);
 		resp.setThreeNotDo(threeNotDo);
 		resp.setFourNotDo(fourNotDo);
@@ -232,15 +259,16 @@ public class OrderCtrl {
 
 		return ResponseEntity.ok(new MessageResp(200, "SUCCESS", resp));
 	}
+
 	@RequestMapping(path = "/confirmWorkerCompletedPhase", method = RequestMethod.GET)
-	public HttpEntity<Object> confirmWorkerCompletedPhase(@RequestParam String orderId, 
+	public HttpEntity<Object> confirmWorkerCompletedPhase(@RequestParam String orderId,
 			@RequestParam String phaseWorkerId) {
 		Optional<Order> opOrder = orderRepo.findById(orderId);
 		if (!opOrder.isPresent()) {
 			return ResponseEntity.ok(new MessageResp(200, "FAIL", "Đơn hàng không tồn tại!"));
 		}
 		Order order = opOrder.get();
-		
+
 		Optional<OrderPhaseWorker> opPhaseWorker = phaseWorkerRepo.findById(phaseWorkerId);
 		if (!opPhaseWorker.isPresent()) {
 			return ResponseEntity.ok(new MessageResp(200, "FAIL", "Công việc không tồn tại!"));
@@ -249,9 +277,9 @@ public class OrderCtrl {
 		phaseWorker.setStatus(Constants.COMPLETED);
 		phaseWorker = phaseWorkerRepo.save(phaseWorker);
 		int quantity = phaseWorker.getQuantity();
-		
+
 		OrderPhase orderPhase = order.getPhases();
-		switch (phaseWorker.getPhase()) {				
+		switch (phaseWorker.getPhase()) {
 		case Constants.PHASE_TWO:
 			orderPhase.setPhaseTwo(orderPhase.getPhaseTwo() - quantity);
 			orderPhase.setPhaseThree(orderPhase.getPhaseThree() + quantity);
@@ -270,14 +298,14 @@ public class OrderCtrl {
 			break;
 		}
 		orderPhase = phaseRepo.save(orderPhase);
-		
+
 		User worker = phaseWorker.getWorker();
 		List<OrderPhaseWorker> phaseWorkers = phaseWorkerRepo.findByWorkerIdAndStatus(worker.getId(), Constants.DOING);
 		if (phaseWorkers == null || phaseWorkers.isEmpty()) {
 			worker.setStatus(false);
 			worker = userRepo.save(worker);
 		}
-		
+
 		phaseWorker.setCompletedTime(new Date());
 		phaseWorker = phaseWorkerRepo.save(phaseWorker);
 		return ResponseEntity.ok(new MessageResp(200, "SUCCESS", "Successfully!"));

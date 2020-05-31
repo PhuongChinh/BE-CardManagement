@@ -66,6 +66,12 @@ public class OrderPhaseWorker implements Serializable {
 	@Column(name="completed_time", nullable = true)
 	private Date completedTime;
 
+	@Column(length = 5000, name = "worker_note", nullable = true)
+	private String workerNote;
+	
+	@Column(length = 5000, name = "qa_note", nullable = true)
+	private String qaNote;
+	
 	public String getId() {
 		return Id;
 	}
@@ -137,5 +143,23 @@ public class OrderPhaseWorker implements Serializable {
 	public void setQuantity(int quantity) {
 		this.quantity = quantity;
 	}
+
+	public String getWorkerNote() {
+		return workerNote;
+	}
+
+	public void setWorkerNote(String workerNote) {
+		this.workerNote = workerNote;
+	}
+
+	public String getQaNote() {
+		return qaNote;
+	}
+
+	public void setQaNote(String qaNote) {
+		this.qaNote = qaNote;
+	}
+	
+	
 	
 }

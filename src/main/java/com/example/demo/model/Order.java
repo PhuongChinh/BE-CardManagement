@@ -29,7 +29,7 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(Include.NON_NULL)
 @Table(name = "orders", schema = "public")
-@NamedQuery(name = "Order.findAll", query = "SELECT u FROM Order u")
+@NamedQuery(name = "Order.findAll", query = "SELECT u FROM Order u order by u.createdTime DESC")
 public class Order implements Serializable {
 	private static final long serialVersionUID = 1L;
 
@@ -42,11 +42,14 @@ public class Order implements Serializable {
 	@Column(length = 254, name = "order_name", nullable = true)
 	private String orderName;
 	
-	@Column(length = 254, name = "order_desc", nullable = true)
+	@Column(length = 5000, name = "order_desc", nullable = true)
 	private String orderDesc;
 	
-	@Column(length = 254, name = "note", nullable = true)
+	@Column(length = 5000, name = "note", nullable = true)
 	private String note;
+	
+	@Column(length = 5000, name = "image_link", nullable = true)
+	private String imageLink;
 	
 	@Column(name = "quantity", nullable = true)
 	private int quantity;
@@ -61,9 +64,9 @@ public class Order implements Serializable {
 	private String status;
 	
 	@ManyToOne(fetch=FetchType.LAZY)
-	@JoinColumn(name="customer_id", nullable=false)
+	@JoinColumn(name="order_list_id", nullable=false)
 	@JsonIgnore
-	private Customer customer;
+	private OrderList orderList;
 
 	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name="created_time")
@@ -80,6 +83,7 @@ public class Order implements Serializable {
 	@OneToMany(mappedBy = "order")
 	@JsonIgnore
 	private List<OrderPhaseWorker> phaseWorkers;
+	
 	
 	public String getId() {
 		return Id;
@@ -137,12 +141,14 @@ public class Order implements Serializable {
 		this.totalAmount = totalAmount;
 	}
 
-	public Customer getCustomer() {
-		return customer;
+	
+
+	public OrderList getOrderList() {
+		return orderList;
 	}
 
-	public void setCustomer(Customer customer) {
-		this.customer = customer;
+	public void setOrderList(OrderList orderList) {
+		this.orderList = orderList;
 	}
 
 	public Date getCreatedTime() {
