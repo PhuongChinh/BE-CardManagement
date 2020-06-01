@@ -49,7 +49,10 @@ public class OrderList implements Serializable {
 	private int totalQuantity;
 	
 	@Column(name = "completed_quantity", nullable = true)
-	private int completedQuantity;
+	private float completedQuantity;
+	
+	@Column(name = "order_quantity", nullable = true)
+	private int orderQuantity;
 	
 	@Column(name = "completed_percent", nullable = true)
 	private float completedPercent;
@@ -103,11 +106,12 @@ public class OrderList implements Serializable {
 		this.totalQuantity = totalQuantity;
 	}
 
-	public int getCompletedQuantity() {
+	
+	public float getCompletedQuantity() {
 		return completedQuantity;
 	}
 
-	public void setCompletedQuantity(int completedQuantity) {
+	public void setCompletedQuantity(float completedQuantity) {
 		this.completedQuantity = completedQuantity;
 	}
 
@@ -133,5 +137,13 @@ public class OrderList implements Serializable {
 
 	public void setCreatedTime(Date createdTime) {
 		this.createdTime = createdTime;
+	}
+
+	public int getOrderQuantity() {
+		return orderQuantity;
+	}
+
+	public void setOrderQuantity(int orderQuantity) {
+		this.orderQuantity = orderQuantity;
 	}
 }

@@ -83,7 +83,8 @@ public class OrderCtrl {
 		order = orderRepo.save(order);
 
 		orderList.setTotalQuantity(orderList.getTotalQuantity() + payload.getOrderQuantity());
-		orderList.setCompletedQuantity(orderList.getCompletedQuantity()/orderList.getTotalQuantity());
+		orderList.setCompletedPercent((orderList.getCompletedQuantity()/orderList.getTotalQuantity()) * 100);
+		orderList.setOrderQuantity(orderList.getOrderQuantity() + 1);
 		orderList = orderListRepo.save(orderList);
 		List<Order> orders = orderRepo.findByOrderListId(payload.getOrderListId());
 		return ResponseEntity.ok(new MessageResp(200, "OK", orders));
@@ -102,12 +103,13 @@ public class OrderCtrl {
 		orderList.setCustomer(customer);
 		orderList.setTotalQuantity(0);
 		orderList.setCompletedQuantity(0);
+		orderList.setOrderQuantity(0);
 		orderList = orderListRepo.save(orderList);
 		customer.setOrderListQuantity(customer.getOrderListQuantity() + 1);
 		if (customer.isOrder() == false) {
 			customer.setOrder(true);
-			customer = customerRepo.save(customer);
 		}
+		customer = customerRepo.save(customer);
 		List<OrderList> orderLists = orderListRepo.findByCustomerId(payload.getCustomerId());
 		return ResponseEntity.ok(new MessageResp(200, "OK", orderLists));
 	}
@@ -115,6 +117,12 @@ public class OrderCtrl {
 	@RequestMapping(path = "/getOrderByOrderListId", method = RequestMethod.GET)
 	public HttpEntity<Object> getOrderByOrderListId(@RequestParam(name = "orderListId") String orderListId) {
 		List<Order> orders = orderRepo.findByOrderListId(orderListId);
+		return ResponseEntity.ok(new MessageResp(200, "OK", orders));
+	}
+	
+	@RequestMapping(path = "/getAllOrder", method = RequestMethod.GET)
+	public HttpEntity<Object> getAllOrder() {
+		List<Order> orders = orderRepo.findAllOrder();
 		return ResponseEntity.ok(new MessageResp(200, "OK", orders));
 	}
 
@@ -263,12 +271,14 @@ public class OrderCtrl {
 	@RequestMapping(path = "/confirmWorkerCompletedPhase", method = RequestMethod.GET)
 	public HttpEntity<Object> confirmWorkerCompletedPhase(@RequestParam String orderId,
 			@RequestParam String phaseWorkerId) {
+		
 		Optional<Order> opOrder = orderRepo.findById(orderId);
 		if (!opOrder.isPresent()) {
 			return ResponseEntity.ok(new MessageResp(200, "FAIL", "Đơn hàng không tồn tại!"));
 		}
 		Order order = opOrder.get();
-
+		//TODO: order_list
+		OrderList orderList = order.getOrderList();
 		Optional<OrderPhaseWorker> opPhaseWorker = phaseWorkerRepo.findById(phaseWorkerId);
 		if (!opPhaseWorker.isPresent()) {
 			return ResponseEntity.ok(new MessageResp(200, "FAIL", "Công việc không tồn tại!"));
@@ -295,6 +305,8 @@ public class OrderCtrl {
 		case Constants.PHASE_FIVE:
 			orderPhase.setPhaseFive(orderPhase.getPhaseFive() - quantity);
 			orderPhase.setPhaseCompleted(orderPhase.getPhaseCompleted() + quantity);
+			orderList.setCompletedQuantity(orderList.getCompletedQuantity() + quantity);
+			orderList.setCompletedPercent((orderList.getCompletedQuantity() / orderList.getTotalQuantity()) * 100);
 			break;
 		}
 		orderPhase = phaseRepo.save(orderPhase);

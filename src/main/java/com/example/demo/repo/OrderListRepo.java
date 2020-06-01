@@ -17,4 +17,7 @@ import com.example.demo.model.OrderList;
 public interface OrderListRepo extends PagingAndSortingRepository<OrderList, String>{
 	@Query(value = "select u from OrderList u where u.customer.Id = :customerId order by u.createdTime DESC")
 	List<OrderList> findByCustomerId(@Param("customerId") String customerId);
+	
+	@Query(value = "select u from OrderList u order by u.createdTime DESC")
+	List<OrderList> findAllOrderList();
 }
