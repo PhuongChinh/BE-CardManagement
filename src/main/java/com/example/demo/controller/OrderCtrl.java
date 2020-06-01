@@ -226,6 +226,8 @@ public class OrderCtrl {
 		PhaseWorkerObj resp = new PhaseWorkerObj();
 		resp.setCompleted(order.getPhases().getPhaseCompleted());
 		resp.setNotDo(order.getPhases().getPhaseOne());
+		resp.setTotalQuantity(order.getQuantity());
+		resp.setImageLink(order.getImageLink());
 
 		for (OrderPhaseWorker phaseWorker : phaseWorkers) {
 			switch (phaseWorker.getPhase()) {

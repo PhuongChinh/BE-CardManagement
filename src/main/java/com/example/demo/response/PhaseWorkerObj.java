@@ -9,6 +9,8 @@ public class PhaseWorkerObj {
 	private List<OrderPhaseWorker> phaseThree;
 	private List<OrderPhaseWorker> phaseFour;
 	private List<OrderPhaseWorker> phaseFive;
+	private String imageLink;
+	private int totalQuantity;
 	private int completed;
 	private int notDo;
 	
@@ -17,6 +19,13 @@ public class PhaseWorkerObj {
 	private int fourNotDo;
 	private int fiveNotDo;
 	
+	
+	public String getImageLink() {
+		return imageLink;
+	}
+	public void setImageLink(String imageLink) {
+		this.imageLink = imageLink;
+	}
 	public List<OrderPhaseWorker> getPhaseTwo() {
 		return phaseTwo;
 	}
@@ -77,4 +86,11 @@ public class PhaseWorkerObj {
 	public void setFiveNotDo(int fiveNotDo) {
 		this.fiveNotDo = fiveNotDo;
 	}
+	public int getTotalQuantity() {
+		return totalQuantity;
+	}
+	public void setTotalQuantity(int totalQuantity) {
+		this.totalQuantity = totalQuantity;
+	}
+	
 }
