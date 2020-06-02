@@ -324,5 +324,110 @@ public class OrderCtrl {
 		phaseWorker = phaseWorkerRepo.save(phaseWorker);
 		return ResponseEntity.ok(new MessageResp(200, "SUCCESS", "Successfully!"));
 	}
+	
+	
+	@RequestMapping(path = "/confirmCancelPhase", method = RequestMethod.GET)
+	public HttpEntity<Object> confirmCancelPhase(@RequestParam String phaseWorkerId) {
+		Optional<OrderPhaseWorker> opPhaseWorker = phaseWorkerRepo.findById(phaseWorkerId);
+		if (!opPhaseWorker.isPresent()) {
+			return ResponseEntity.ok(new MessageResp(200, "FAIL", "Công việc không tồn tại!"));
+		}
+		OrderPhaseWorker phaseWorker = opPhaseWorker.get();
+		OrderPhase orderPhase = phaseWorker.getOrder().getPhases();
+		if (phaseWorker.getPhase().equalsIgnoreCase(Constants.PHASE_TWO)) {
+			orderPhase.setPhaseTwo(orderPhase.getPhaseTwo() - phaseWorker.getQuantity());
+			orderPhase.setPhaseOne(orderPhase.getPhaseOne() + phaseWorker.getQuantity());
+			orderPhase = phaseRepo.save(orderPhase);
+		}
+		User user = phaseWorker.getWorker();
+		phaseWorkerRepo.delete(phaseWorker);
+		List<OrderPhaseWorker> phaseWorkers = phaseWorkerRepo.findByWorkerIdAndStatus(user.getId(), Constants.DOING);
+		if (phaseWorkers == null || phaseWorkers.isEmpty()) {
+			user.setStatus(false);
+			user = userRepo.save(user);
+		}
+		return ResponseEntity.ok(new MessageResp(200, "SUCCESS", "Successfully!"));
+	}
+	
+	@RequestMapping(path = "/deleteOrderList", method = RequestMethod.DELETE)
+	public HttpEntity<Object> deleteOrderList(@RequestParam String orderListId) {
+		Optional<OrderList> opOrderList = orderListRepo.findById(orderListId);
+		if (!opOrderList.isPresent()) {
+			return ResponseEntity.ok(new MessageResp(200, "FAIL", "Đơn hàng không tồn tại!"));
+		}
+		OrderList orderList = opOrderList.get();
+		Customer customer = orderList.getCustomer();
+		try {
+			orderListRepo.delete(orderList);
+			int orderQuantity = customer.getOrderListQuantity() - 1;
+			customer.setOrderListQuantity(orderQuantity);
+			if (orderQuantity == 0) {
+				customer.setOrder(false);
+			}
+			customer = customerRepo.save(customer);
+			
+		} catch (Exception ex) {
+			return ResponseEntity.ok(new MessageResp(400, "FAIL", ex.getCause()));
+		}
+		return ResponseEntity.ok(new MessageResp(200, "SUCCESS", "Successfully!"));
+	}
+	
+	@RequestMapping(path = "/deleteOrder", method = RequestMethod.DELETE)
+	public HttpEntity<Object> deleteOrder(@RequestParam String orderId,
+			@RequestParam String orderListId) {
+		Optional<Order> opOrder = orderRepo.findById(orderId);
+		if (!opOrder.isPresent()) {
+			return ResponseEntity.ok(new MessageResp(200, "FAIL", "Mẫu không tồn tại!"));
+		}
+		Order order = opOrder.get();
+		OrderList orderList = orderListRepo.findById(orderListId).get();
+		try {
+			int completedQuantity = order.getPhases().getPhaseCompleted();
+			int totalQuantity = order.getQuantity();
+			
+			int total = orderList.getTotalQuantity() - totalQuantity;
+			float completed = orderList.getCompletedQuantity() - completedQuantity;
+			float percent = (orderList.getCompletedQuantity()/orderList.getTotalQuantity()) * 100;
+			if (order.getPhaseWorkers() == null || order.getPhaseWorkers().isEmpty()) {
+				orderList.setTotalQuantity(total);
+				orderList.setCompletedQuantity(completed);
+				orderList.setCompletedPercent(percent);
+				orderList = orderListRepo.save(orderList);
+				orderRepo.delete(order);
+			}
+		} catch (Exception ex) {
+			System.out.println(ex.getCause());
+			return ResponseEntity.ok(new MessageResp(400, "FAIL", ex.getCause()));
+		}
+		return ResponseEntity.ok(new MessageResp(200, "SUCCESS", "Successfully!"));
+	}
+	
+	
+	
+	//TODO: NOTE OF WORKER/MANAGER
+	@RequestMapping(path = "/addWorkerNote", method = RequestMethod.GET)
+	public HttpEntity<Object> addWorkerNote(@RequestParam String note,
+			@RequestParam String orderPhaseWorkerId) {
+		Optional<OrderPhaseWorker> opPhaseWorker = phaseWorkerRepo.findById(orderPhaseWorkerId);
+		if (opPhaseWorker.isPresent()) {
+			OrderPhaseWorker phaseWorker = opPhaseWorker.get();
+			phaseWorker.setWorkerNote(note);
+			phaseWorker = phaseWorkerRepo.save(phaseWorker);
+			return ResponseEntity.ok(new MessageResp(200, "SUCCESS", phaseWorker));
+		}
+		return null;
+	}
+	@RequestMapping(path = "/addManagerNote", method = RequestMethod.GET)
+	public HttpEntity<Object> addManagerNote(@RequestParam String note,
+			@RequestParam String orderPhaseWorkerId) {
+		Optional<OrderPhaseWorker> opPhaseWorker = phaseWorkerRepo.findById(orderPhaseWorkerId);
+		if (opPhaseWorker.isPresent()) {
+			OrderPhaseWorker phaseWorker = opPhaseWorker.get();
+			phaseWorker.setQaNote(note);
+			phaseWorker = phaseWorkerRepo.save(phaseWorker);
+			return ResponseEntity.ok(new MessageResp(200, "SUCCESS", phaseWorker));
+		}
+		return null;
+	}
 
 }
