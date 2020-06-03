@@ -409,6 +409,7 @@ public class OrderCtrl {
 				orderList.setTotalQuantity(total);
 				percent = (orderList.getCompletedQuantity()/orderList.getTotalQuantity()) * 100;
 				orderList.setCompletedPercent(percent);
+				orderList.setOrderQuantity(orderList.getOrderQuantity() - 1);
 				orderList = orderListRepo.save(orderList);
 				orderRepo.delete(order);
 			}
