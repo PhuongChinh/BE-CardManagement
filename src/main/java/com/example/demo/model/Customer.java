@@ -13,6 +13,7 @@ import javax.persistence.Table;
 
 import org.hibernate.annotations.GenericGenerator;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -56,6 +57,7 @@ public class Customer implements Serializable {
 	private int orderListQuantity;
 	
 	@OneToMany(mappedBy = "customer")
+	@JsonIgnore
 	private List<OrderList> orderList;
 
 	public String getId() {

@@ -60,15 +60,7 @@ public class OrderCtrl {
 		Order order = new Order();
 
 		order.setCreatedTime(new Date());
-		OrderPhase phases = new OrderPhase();
-		phases.setPhaseOne(payload.getOrderQuantity());
-		phases.setPhaseTwo(0);
-		phases.setPhaseThree(0);
-		phases.setPhaseFour(0);
-		phases.setPhaseFive(0);
-		phases.setPhaseCompleted(0);
-		phases = phaseRepo.save(phases);
-		order.setPhases(phases);
+		
 
 		order.setOrderName(payload.getOrderName());
 		order.setOrderDesc(payload.getOrderDesc());
@@ -77,9 +69,10 @@ public class OrderCtrl {
 		order.setQuantity(payload.getOrderQuantity());
 		order.setTotalAmount(payload.getOrderPrice() * payload.getOrderQuantity());
 		order.setStatus(payload.getOrderStatus());
-
+		order.setInProgess(false);
 		OrderList orderList = orderListRepo.findById(payload.getOrderListId()).get();
 		order.setOrderList(orderList);
+		order.setImageLink(payload.getImageLink());
 		order = orderRepo.save(order);
 
 		orderList.setTotalQuantity(orderList.getTotalQuantity() + payload.getOrderQuantity());
@@ -89,6 +82,32 @@ public class OrderCtrl {
 		List<Order> orders = orderRepo.findByOrderListId(payload.getOrderListId());
 		return ResponseEntity.ok(new MessageResp(200, "OK", orders));
 	}
+	
+	@RequestMapping(path = "/startProgess", method = RequestMethod.GET)
+	public HttpEntity<Object> startProgess(@RequestParam String orderId) {
+		Optional<Order> opOrder = orderRepo.findById(orderId);
+		if (!opOrder.isPresent()) {
+			return ResponseEntity.ok(new MessageResp(200, "FAIL", "Mẫu không tồn tại!"));
+		}
+		Order order = opOrder.get();
+		OrderPhase phases = new OrderPhase();
+		phases.setPhaseOne(order.getQuantity());
+		phases.setPhaseTwo(0);
+		phases.setPhaseThree(0);
+		phases.setPhaseFour(0);
+		phases.setPhaseFive(0);
+		phases.setPhaseCompleted(0);
+		phases = phaseRepo.save(phases);
+		
+		order.setPhases(phases);
+		order.setInProgess(true);
+		order = orderRepo.save(order);
+		return ResponseEntity.ok(new MessageResp(200, "OK", order));		
+
+	}
+	
+	
+	
 	
 	//TODO: CREATE ORDER_LIST
 	@RequestMapping(path = "/createOrderList", method = RequestMethod.POST)
@@ -145,7 +164,7 @@ public class OrderCtrl {
 		Optional<User> opWorker = userRepo.findById(payload.getWorkerId());
 
 		if (!opOrder.isPresent()) {
-			return ResponseEntity.ok(new MessageResp(200, "FAIL", "Đơn hàng không tồn tại!"));
+			return ResponseEntity.ok(new MessageResp(200, "FAIL", "Mẫu không tồn tại!"));
 		}
 
 		if (!opCreatedBy.isPresent()) {
@@ -382,15 +401,13 @@ public class OrderCtrl {
 		Order order = opOrder.get();
 		OrderList orderList = orderListRepo.findById(orderListId).get();
 		try {
-			int completedQuantity = order.getPhases().getPhaseCompleted();
 			int totalQuantity = order.getQuantity();
 			
 			int total = orderList.getTotalQuantity() - totalQuantity;
-			float completed = orderList.getCompletedQuantity() - completedQuantity;
 			float percent = (orderList.getCompletedQuantity()/orderList.getTotalQuantity()) * 100;
 			if (order.getPhaseWorkers() == null || order.getPhaseWorkers().isEmpty()) {
 				orderList.setTotalQuantity(total);
-				orderList.setCompletedQuantity(completed);
+				percent = (orderList.getCompletedQuantity()/orderList.getTotalQuantity()) * 100;
 				orderList.setCompletedPercent(percent);
 				orderList = orderListRepo.save(orderList);
 				orderRepo.delete(order);

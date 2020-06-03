@@ -9,6 +9,7 @@ public class CreateOrderObj {
 	private int orderTotalAmount;
 	private String orderStatus;
 	private String orderListId;
+	private String imageLink;
 	public String getOrderName() {
 		return orderName;
 	}
@@ -57,6 +58,12 @@ public class CreateOrderObj {
 	}
 	public void setOrderListId(String orderListId) {
 		this.orderListId = orderListId;
+	}
+	public String getImageLink() {
+		return imageLink;
+	}
+	public void setImageLink(String imageLink) {
+		this.imageLink = imageLink;
 	}
 	
 	

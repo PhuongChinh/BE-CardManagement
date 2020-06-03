@@ -59,7 +59,6 @@ public class OrderList implements Serializable {
 	
 	@ManyToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name="customer_id", nullable=false)
-	@JsonIgnore
 	private Customer customer;
 
 	@Temporal(TemporalType.TIMESTAMP)

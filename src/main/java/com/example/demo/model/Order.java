@@ -63,9 +63,11 @@ public class Order implements Serializable {
 	@Column(length = 254, name = "status", nullable = true)
 	private String status;
 	
+	@Column(name = "in_progess", nullable = true)
+	private boolean inProgess;
+	
 	@ManyToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name="order_list_id", nullable=false)
-	@JsonIgnore
 	private OrderList orderList;
 
 	@Temporal(TemporalType.TIMESTAMP)
@@ -198,5 +200,12 @@ public class Order implements Serializable {
 	public void setImageLink(String imageLink) {
 		this.imageLink = imageLink;
 	}
-	
+
+	public boolean isInProgess() {
+		return inProgess;
+	}
+
+	public void setInProgess(boolean inProgess) {
+		this.inProgess = inProgess;
+	}
 }
