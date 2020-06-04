@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.demo.model.Customer;
 import com.example.demo.model.DesignRequired;
 import com.example.demo.model.Order;
 import com.example.demo.model.User;
@@ -47,13 +48,26 @@ public class DesignRequiredCtrl {
 	
 	@RequestMapping(path = "/createRequired", method = RequestMethod.POST)
 	public HttpEntity<Object> createRequired(@RequestBody DesignRequiredObj payload) {
-		Optional<Order> opOrder = orderRepo.findById(payload.getOrderId());
-		if (!opOrder.isPresent()) {
-			return ResponseEntity.ok(new MessageResp(200, "FAIL", "Mẫu này không tồn tại!"));
-		}
-		Order order = opOrder.get();
 		DesignRequired required = new DesignRequired();
-		required.setOrder(order);
+		if ("NO ORDER".equalsIgnoreCase(payload.getOrderId())) {
+			String customerId = payload.getCustomerId();
+			Customer customer = customerRepo.findById(customerId).get();
+			required.setCustomer(customer);
+			customer.setRequiredDesign(true);
+			customer = customerRepo.save(customer);
+		} else {
+			Optional<Order> opOrder = orderRepo.findById(payload.getOrderId());
+			if (!opOrder.isPresent()) {
+				return ResponseEntity.ok(new MessageResp(200, "FAIL", "Mẫu này không tồn tại!"));
+			}
+			Order order = opOrder.get();
+			Customer customer = order.getOrderList().getCustomer();
+			required.setCustomer(customer); 
+			customer.setRequiredDesign(true);
+			customer = customerRepo.save(customer);
+			required.setOrder(order);
+		}
+		
 		required.setRequiredName(payload.getRequiredTitle());
 		required.setRequiredDesc(payload.getRequiredDesc());
 		required.setCreatedTime(new Date());
@@ -61,12 +75,19 @@ public class DesignRequiredCtrl {
 		required.setNote(payload.getNote());
 		required.setCompleted(false);
 		required = requiredRepo.save(required);
+		
 		return ResponseEntity.ok(new MessageResp(200, "SUCCESS", required));
 	}
 	
 	@RequestMapping(path = "/findAllRequired", method = RequestMethod.GET)
 	public HttpEntity<Object> findAllRequired() {
 		List<DesignRequired> requireds = requiredRepo.findAllRequired();
+		return ResponseEntity.ok(new MessageResp(200, "SUCCESS", requireds));
+	}
+	
+	@RequestMapping(path = "/findRequiredByCustomerId", method = RequestMethod.GET)
+	public HttpEntity<Object> findRequiredByCustomerId(@RequestParam String customerId) {
+		List<DesignRequired> requireds = requiredRepo.findRequiredByCustomerId(customerId);
 		return ResponseEntity.ok(new MessageResp(200, "SUCCESS", requireds));
 	}
 	
@@ -92,4 +113,21 @@ public class DesignRequiredCtrl {
 		required = requiredRepo.save(required);
 		return ResponseEntity.ok(new MessageResp(200, "SUCCESS", required));		
 	}
+	@RequestMapping(path = "/deleteRequired", method = RequestMethod.DELETE)
+	public HttpEntity<Object> deleteRequired(@RequestParam String requiredId) {
+		Optional<DesignRequired> opRequired = requiredRepo.findById(requiredId);
+		if (!opRequired.isPresent()) {
+			return ResponseEntity.ok(new MessageResp(200, "FAIL", "Mẫu này không tồn tại!"));
+		}
+		DesignRequired required = opRequired.get();
+		Customer customer = required.getCustomer();
+		requiredRepo.delete(required);
+		List<DesignRequired> requireds = requiredRepo.findRequiredByCustomerId(customer.getId());
+		if (requireds == null || requireds.isEmpty()) {
+			customer.setRequiredDesign(false);
+			customer = customerRepo.save(customer);
+		}
+		return ResponseEntity.ok(new MessageResp(200, "SUCCESS", "Delete successfully"));		
+	}
+	
 }

@@ -6,6 +6,7 @@ public class DesignRequiredObj {
 	private String note;
 	private String orderId;
 	private String imageLink;
+	private String customerId;
 	public String getRequiredTitle() {
 		return requiredTitle;
 	}
@@ -35,5 +36,11 @@ public class DesignRequiredObj {
 	}
 	public void setImageLink(String imageLink) {
 		this.imageLink = imageLink;
+	}
+	public String getCustomerId() {
+		return customerId;
+	}
+	public void setCustomerId(String customerId) {
+		this.customerId = customerId;
 	}
 }

@@ -56,6 +56,10 @@ public class Customer implements Serializable {
 	@Column(name = "order_list_quantity", nullable = true)
 	private int orderListQuantity;
 	
+	@OneToMany(mappedBy = "order")
+	@JsonIgnore
+	private List<DesignRequired> requireds;
+	
 	@OneToMany(mappedBy = "customer")
 	@JsonIgnore
 	private List<OrderList> orderList;
@@ -139,5 +143,15 @@ public class Customer implements Serializable {
 	public void setOrderListQuantity(int orderListQuantity) {
 		this.orderListQuantity = orderListQuantity;
 	}
+
+	public List<DesignRequired> getRequireds() {
+		return requireds;
+	}
+
+	public void setRequireds(List<DesignRequired> requireds) {
+		this.requireds = requireds;
+	}
+	
+	
 	
 }

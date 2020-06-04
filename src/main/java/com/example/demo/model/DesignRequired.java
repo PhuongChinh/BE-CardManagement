@@ -9,6 +9,7 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
@@ -62,9 +63,13 @@ public class DesignRequired  implements Serializable {
 	@JoinColumn(name = "completed_by", nullable = true)
 	private User completedBy;
 	
-	@OneToOne(fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "order_id", nullable = true)
 	private Order order;
+	
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "customer_id", nullable = true)
+	private Customer customer;
 
 	public String getId() {
 		return Id;
@@ -146,5 +151,14 @@ public class DesignRequired  implements Serializable {
 	public void setImageLink(String imageLink) {
 		this.imageLink = imageLink;
 	}
+
+	public Customer getCustomer() {
+		return customer;
+	}
+
+	public void setCustomer(Customer customer) {
+		this.customer = customer;
+	}
+	
 	
 }

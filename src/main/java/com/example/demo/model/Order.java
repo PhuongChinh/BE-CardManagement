@@ -86,6 +86,9 @@ public class Order implements Serializable {
 	@JsonIgnore
 	private List<OrderPhaseWorker> phaseWorkers;
 	
+	@OneToMany(mappedBy = "order")
+	@JsonIgnore
+	private List<DesignRequired> requireds;
 	
 	public String getId() {
 		return Id;
